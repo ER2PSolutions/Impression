@@ -1,8 +1,8 @@
 {
-  "name": "impression",
-  "productName": "Impression",
+  "name": "Lisa impression",
+  "productName": "Lisa Impression",
   "version": "1.0.0",
-  "description": "programme impression",
+  "description": "Lisa impression",
   "main": "main.js",
   "build": {
     "nsis": {
@@ -14,16 +14,17 @@
       "runAfterFinish": false
     },
     "win": {
-      "icon": "src/images/logo_er2p.png"
+      "icon": "./src/images/logo_er2p.ico",
+      "requestedExecutionLevel": "requireAdministrator"
     },
     "appId": "com.er2p.impression"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron-forge start",
-    "package": "electron-forge package",
+    "package": "electron-packager . LisaImpression --icon=./src/images/logo_er2p.ico",
     "make": "electron-forge make",
-    "dist":"build"
+    "dist": "build"
   },
   "keywords": [
     "electron"
@@ -38,11 +39,13 @@
     "@electron-forge/maker-zip": "^6.0.0-beta.64",
     "electron": "^19.1.0",
     "electron-builder": "^23.3.3",
+    "electron-packager": "^16.0.0",
     "electron-pdf-window-s": "^2.1.0",
     "electron-rebuild": "^3.2.9"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
+    "auto-launch": "^5.0.5",
     "bootstrap": "^5.1.3",
     "devextreme": "22.1.4",
     "electron-dl": "^3.3.1",
@@ -65,13 +68,16 @@
     "pdfjs-dist": "^2.16.105",
     "public-ip": "^4.0.0",
     "python": "^0.0.4",
+    "rm-rf": "^2.0.1",
     "toastr": "^2.1.4",
     "windows-1252": "^3.0.4",
     "xmlhttprequest": "^1.8.0"
   },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "icon":"./src/images/logo_er2p.ico"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",

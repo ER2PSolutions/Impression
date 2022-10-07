@@ -22,13 +22,13 @@ const restartButton = document.getElementById('restart-button');
 var ipPublicNow;
 
 
-var adresseAPI = "http://apimpression";
-//var adresseAPI = "https://apiimpression.leonardo-service.com";
+//var adresseAPI = "http://apiimpression";
+var adresseAPI = "https://apiimpression.leonardo-service.com";
 
 
 //A la sorti du curseur de la zone identifiant, recherche dans le fichier si existant
 $("#tbx_username").blur(function () {
-    //$(this).css("background-color", "#333333");
+
     var chemin = path.join(dataNew, "parametre_compte.txt");
     var log = false;
     var domain;
@@ -53,18 +53,6 @@ $("#tbx_username").blur(function () {
 
 window.addEventListener('DOMContentLoaded', () => {
 
-    ipc.on('update_available', () => { 
-        ipc.removeAllListeners('update_available'); 
-        message.innerText = 'Une nouvelle mise à jour est disponible. Téléchargement en cours...'; 
-        notification.classList.remove('hidden') ; 
-      });
-      ipc.on('update_downloaded', () => { 
-        ipc.removeAllListeners('update_downloaded'); 
-        message.innerText = 'Mise à jour téléchargée. Elle sera installée au redémarrage. Redémarrez maintenant ?'; 
-        restartButton.classList.remove('hidden '); 
-        notification.classList.remove('caché'); 
-      });
-    
 
 
     var racine = "%AppData%/Microsoft/Windows/Start Menu/Programs/Startup";
@@ -169,15 +157,12 @@ function connexion() {
     //connexion à l'API pour validation des identifiants de connexion base Z et récupération des données concernant la connexion à la base de données 
     xhr.open("POST", adresseAPI + "/connexion.php");
 
-    //toastInfo("connexion à la base");
-
-
-
-    console.log(data);
 
     xhr.send(data);
 
     xhr.onload = function () {
+
+        debugger;
 
         var dataResult = JSON.parse(xhr.responseText);
 
@@ -245,7 +230,7 @@ function connexion() {
 
                 ipPublicNow = ipPublic;
 
-                //console.log(ipPublicNow);
+             
                 
 
                 var databdd = new FormData();
@@ -262,11 +247,6 @@ function connexion() {
 
                 var nameUser = dataResult.data[0].nameuser;
                 var premomUser = dataResult.data[0].prenom;
-
-                //toastInfo("recup des données");
-
-               
-                //source.push(item);
 
                 var xhrConnexionIP = new XMLHttpRequest();
                 xhrConnexionIP.withCredentials = true;
@@ -287,8 +267,6 @@ function connexion() {
               
 
                     var dataConnexionIP = JSON.parse(xhrConnexionIP.responseText);
-
-                    //toastInfo("recup des documents");
 
                     if ((dataConnexionIP.message == "ok")|| (dataConnexionIP.message == "modification")) {
 
@@ -338,9 +316,6 @@ function connexion() {
 
                             var dataListeDoc = JSON.parse(xhrListeDoc.responseText);
 
-                            //toastInfo("recup des documents");
-
-
                             if (dataListeDoc.message == "ok") {
 
 
@@ -382,7 +357,6 @@ function connexion() {
                                             //insertion des nom des documents non encore stockés dans le fichier txt
                                             fs.appendFile(path.join(dataNew, "parametre_imprimante_") + login + "_" + domain + ".txt", dataFile, function (err) {
                                                 if (err) throw err;
-                                                //ipc.send('closeLogin');
                                                 ipc.send('openChildWindow', item);
                                             });
                                         }
@@ -409,7 +383,6 @@ function connexion() {
                                     //création et saisie des données dans le fichier txt
                                     fs.writeFile(path.join(dataNew, "parametre_imprimante_") + login + "_" + domain + ".txt", dataFile, function (err) {
                                         if (err) throw err;
-                                        //ipc.send('closeLogin');
                                         ipc.send('openChildWindow', item);
                                     });
                                 }
@@ -429,7 +402,7 @@ function connexion() {
                 }else{
                     if(dataResult.message=="erreur de version - faire mise à jour du programme"){
                         toastInfo("Vous devez faire la mise à jour");
-                        ipc.send('restart_app'); 
+                        //ipc.send('restart_app'); 
                     }
                 }
             }
@@ -437,18 +410,6 @@ function connexion() {
     }
 
 
-   
-    
-
-
-
-
-
-
-    //ouverture de la page de paramétrage des documents
-    //ipc.send('openChildWindow','SRI'); 
-    //fermeture de la page de connexion
-    // ipc.send('closeLogin');
 }
 
 

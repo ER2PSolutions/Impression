@@ -4,15 +4,17 @@ remote.initialize();
 const {app,Menu,ipcMain, Tray } = electron;
 const  BrowserWindow = require("electron").BrowserWindow;
 const path = require('path');
-var iconpath = path.join(__dirname, 'src/images/logo_er2p.png')
+var iconpath = path.join(__dirname, 'src/images/logo_er2p.ico')
 let mainWindowLogin;
 const fs = require('fs');
 const {download} = require("electron-dl");
-
+global.data={};
+global.quit=false;
+global.window="";
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
-var adresseAPI = "http://apimpression";
-//var adresseAPI = "https://apiimpression.leonardo-service.com";
+//var adresseAPI = "http://apiimpression";
+var adresseAPI = "https://apiimpression.leonardo-service.com";
 
 var printer = remote.printer
 
@@ -22,16 +24,19 @@ const { dialog } = require('electron');
 
 const { autoUpdater } = require('electron-updater');
 
+var AutoLaunch=require('auto-launch');
+
 app.disableHardwareAcceleration()
+
 
 function createWindowIndex() {
 
- 
+  data={"deconnecter" : global.deconnecte, "ip":global.ip,"user":global.data,"version":app.getVersion(), "quit": global.quit,"window":global.window};
 
   mainWindowIndex = new BrowserWindow({
     width: 120,
     height: 100,
-    icon:'src/images/logo_er2p.png',
+    icon:'src/images/logo_er2p.ico',
     maximized: false,
     center: true,
     webPreferences: {
@@ -42,7 +47,7 @@ function createWindowIndex() {
     show: false,
   });
 
-  mainWindowIndex.loadFile("src/index/index.html");
+  mainWindowIndex.loadFile("src/index/index.html",{query:{"data" : JSON.stringify(data)}});
 
   mainWindowIndex.on('close', function (event) {
     app.quit();
@@ -57,30 +62,16 @@ function createWindowIndex() {
 
   })
 
-
 }
 
-ipcMain.on('restart_app', () => { 
-  autoUpdater.quitAndInstall(); 
-});
-
-autoUpdater.on('update-available', () => {
-  mainWindow.webContents.send('update_available');
-});
-autoUpdater.on('update-downloaded', () => {
-  mainWindow.webContents.send('update_downloaded');
-});
 
 function createWindowLogin(deconnecte,ip) {
-
-  
-
   data={"chemin" : __dirname, "deconnect" : deconnecte, "ip":ip,"version":app.getVersion()};
 
   mainWindowLogin = new BrowserWindow({
     width: 1200,
     height: 1000,
-    icon:'src/images/logo_er2p.png',
+    icon:'src/images/logo_er2p.ico',
     maximized: false,
     center: true,
     webPreferences: {
@@ -96,11 +87,11 @@ function createWindowLogin(deconnecte,ip) {
   mainWindowLogin.show();
   menuLogin();
 
-  let menuTrayLogin = notification(mainWindowLogin);
+  let menuTrayLogin = notification(mainWindowLogin,"login");
 
   mainWindowLogin.on('close', function (event) {
     menuTrayLogin.destroy();
-    console.log(app.deconnect);
+    
     if(!app.deconnect){
       const options = {
         type: 'question',
@@ -113,8 +104,12 @@ function createWindowLogin(deconnecte,ip) {
       dialog.showMessageBox(null,options)
         .then(result => {
           if (result.response === 1) {
-            app.isQuiting = true;
-            app.quit();
+            global.quit=true;
+            global.deconnecte=false;
+            global.window="login";
+            createWindowIndex();
+            //app.isQuiting = true;
+            //app.quit();
           }else{
             createWindowLogin(global.deconnecte, global.ip);
           }
@@ -134,14 +129,9 @@ function createWindowLogin(deconnecte,ip) {
 
   })
 
-  
-  mainWindowLogin.once('ready-to-show', () => {
-    autoUpdater.checkForUpdatesAndNotify();
-  });
-
 }
 
-function notification(window){
+function notification(window,nameWindow){
   var appIcon = new Tray(iconpath)
 
   var contextMenu = Menu.buildFromTemplate([
@@ -152,7 +142,6 @@ function notification(window){
       },
       {
           label: 'Quitter', click: function () {
-             
               const options = {
                 type: 'question',
                 buttons: ['Annuler', 'Valider',],
@@ -164,14 +153,12 @@ function notification(window){
               dialog.showMessageBox(null,options)
                 .then(result => {
                   if (result.response === 1) {
-                    app.isQuiting = true;
-                    app.quit();
+                    global.quit=true;
+                    global.window=nameWindow;
+                    createWindowIndex();
                   }
                 }
               );
-        
-            
-              
           }
       }
   ])
@@ -191,7 +178,7 @@ function createChildWindow(arg) {
     height: 1000,
     modal: true,
     show: false,
-    icon:'src/images/logo_er2p.png',
+    icon:'src/images/logo_er2p.ico',
   
     webPreferences: {
       nodeIntegration: true,
@@ -203,23 +190,18 @@ function createChildWindow(arg) {
   
   childWindow.loadFile("src/parametrage/parametrage.html", {query:{"data" : JSON.stringify(data)}});
 
-  
   childWindow.once("ready-to-show", () => {
     childWindow.show();
     window='parametre';
   });
 
-  
-
   menuParam();
 
-  let menuTrayChild = notification(childWindow);
-
-  
+  let menuTrayChild = notification(childWindow,"childWindow");
 
   childWindow.on('close', function (event) {
     menuTrayChild.destroy();
-    console.log(app.deconnect);
+
       if(!app.deconnect){
         const options = {
           type: 'question',
@@ -232,8 +214,9 @@ function createChildWindow(arg) {
         dialog.showMessageBox(null,options)
           .then(result => {
             if (result.response === 1) {
-              app.isQuiting = true;
-              app.quit();
+              global.quit=true;
+              global.window="childWindow";
+              createWindowIndex();
             }else{
               createChildWindow(global.data.user);
             }
@@ -273,6 +256,11 @@ ipcMain.on("openLogin", (event, arg) => {
   createWindowLogin(global.deconnecte, global.ip);
 });
 
+ipcMain.on("quit", (event, arg) => {
+  app.isQuiting = true;
+  app.quit();
+});
+
 ipcMain.on( "setMyGlobalVariable", ( event, myGlobalVariableValue, myIp ) => {
   global.deconnecte = myGlobalVariableValue;
   global.ip=myIp;
@@ -308,7 +296,7 @@ ipcMain.on("closeLogin", (event, args)=>{
         app.deconnect=false;
         mainWindowLogin.close();
       }else{
-        createWindowLogin(global.deconnect, global.ip)
+        createWindowLogin(global.deconnecte, global.ip)
       }
     }
   );
@@ -320,6 +308,7 @@ ipcMain.on("closeChildWindow", (event, args)=>{
   childWindow.close();
  
   createWindowLogin(global.deconnecte, global.ip);
+ 
 });
 
 
@@ -356,7 +345,9 @@ ipcMain.on("editionPdf", (event, arg) => {
 
 
 ipcMain.on('app_version', (event) => {
+  console.log('getVersion');
   event.sender.send('app_version', { version: app.getVersion() });
+ 
 });
 
 
@@ -370,6 +361,9 @@ function menuLogin(){
                 label: 'Quitter',
                 click : async () => {
                   app.deconnect=false;
+                  global.quit=true;
+                  global.deconnecte=false;
+                  global.window="login";
                   mainWindowLogin.close();
                 }
             }
@@ -392,64 +386,9 @@ function menuParam(){
                 childWindow.close();
                 global.deconnecte=true;
                 global.ip="";
-
-               
-
-                const { net } = require('electron')
-                const querystring = require('querystring');
-
-                var postData = JSON.stringify({
-                  'username' : 'test',
-                  'password': 'test'
-                });
-
-                const request = net.request( {
-                  method: 'POST',
-                  url: adresseAPI + "/connexion.php",
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': postData.length
-                  }
-                });
-
-                request.on('error', (error) => {});
-
-                request.on('response', (response) => {});
-                request.write(postData);
-                request.end();
-              
-                /*var xhr = new XMLHttpRequest();
-                xhr.withCredentials = true;
-            
-                xhr.addEventListener("readystatechange", function () {
-                    if (this.readyState === 4) {
-            
-                    }
-                });
-            
-                //connexion à l'API pour validation des identifiants de connexion base Z et récupération des données concernant la connexion à la base de données 
-                xhr.open("POST", adresseAPI + "/connexion.php");
-            
-                //toastInfo("connexion à la base");
-
-                console.log(global.data.user);
-            
-                xhr.send(global.data.user);
-            
-                xhr.onload = function () {
-            
-                    var dataResult = JSON.parse(xhr.responseText);
-            
-                    if (dataResult.message == 'ok') {
-
-                      console.log('hello');
-
-                    }
-                }*/
-
-
-                createWindowLogin(global.deconnecte, global.ip);
-                
+                global.quit=false;
+                global.window="childWindow"
+                createWindowIndex();
 
               }
             },
@@ -457,7 +396,10 @@ function menuParam(){
                 label: 'Quitter',
                 click : async () => {
                   app.deconnect=false;
+                  global.quit=true;
+                  global.window="childWindow";
                   childWindow.close();
+
                 }
             }
         ]

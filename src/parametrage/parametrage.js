@@ -10,8 +10,8 @@ const  BrowserWindow = require("electron").BrowserWindow;
 var ipPublicNow;
 require ("electron-fetch");
 
-var adresseAPI = "http://apimpression";
-//var adresseAPI = "https://apiimpression.leonardo-service.com";
+//var adresseAPI = "http://apiimpression";
+var adresseAPI = "https://apiimpression.leonardo-service.com";
 
 var dataGrid = null;
 let listPrinter=[];
@@ -23,7 +23,6 @@ let version=dataNew.version;
 $("#lbl_typedoc").html(("Liste imprimantes"));
 
 window.addEventListener('DOMContentLoaded', () => {
-    //let message=ipcRenderer.invoke('deletePrint');
     let printers = ipcRenderer.invoke('getPrinters');
 	let list=printers.then(	
 		list=>{
@@ -369,10 +368,7 @@ async function lancementEdition(data, delay){
     });
 
     //connexion à l'API pour validation des identifiants de connexion base Z et récupération des données concernant la connexion à la base de données 
-    xhr.open("POST", adresseAPI+"/connexion.php");
-
-    console.log(dataConnexion);
-    debugger;
+    xhr.open("POST", adresseAPI+"/connexion.php");    
 
     xhr.send(dataConnexion);
  
@@ -512,22 +508,18 @@ async function lancementEdition(data, delay){
                                                     })
         
                                                 }
-                                                //setTimeout(()=>lancementEdition(data,delay), delay);
+                                                setTimeout(()=>lancementEdition(data,delay), delay);
                                             }
                                         }
-
-
                                     });
                                 }else{
-                                    //setTimeout(()=>lancementEdition(data,delay), delay);
+                                    setTimeout(()=>lancementEdition(data,delay), delay);
                                 }
                             }
                         }else{
-                            //setTimeout(()=>lancementEdition(data,delay), delay);
+                            setTimeout(()=>lancementEdition(data,delay), delay);
                         }
                     }
-
-                   
                 }
             });
         }else{
@@ -536,9 +528,6 @@ async function lancementEdition(data, delay){
             }
         }
     }
-
-  
-
 }
 
 
