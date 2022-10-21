@@ -53,20 +53,6 @@ $("#tbx_username").blur(function () {
 
 window.addEventListener('DOMContentLoaded', () => {
 
-
-
-    var racine = "%AppData%/Microsoft/Windows/Start Menu/Programs/Startup";
-    var cheminRapide = path.join(racine, "impression.exe");
-    if (fs.existsSync(cheminRapide)) {
-        console.log('existe');
-    } else {
-        //ajout de l'exe dans démarrage rapide windows
-        console.log('existe pas');
-    }
-    console.log(racine);
-    console.log(getConnexion);
-   
-
     var chemin = path.join(dataNew, "parametre_compte.txt");
     var log = false;
     var domain;
@@ -121,7 +107,7 @@ function connexion() {
     var domain = document.getElementById('tbx_domain').value;
 
     domain=domain.toLowerCase();
-    console.log(version);
+    
     data.append("login", login);
     data.append("domain", domain);
     data.append("version",version);
@@ -161,8 +147,6 @@ function connexion() {
     xhr.send(data);
 
     xhr.onload = function () {
-
-        debugger;
 
         var dataResult = JSON.parse(xhr.responseText);
 

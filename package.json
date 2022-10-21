@@ -1,10 +1,11 @@
 {
-  "name": "Lisa impression",
+  "name": "Lisa Impression",
   "productName": "Lisa Impression",
   "version": "1.0.0",
-  "description": "Lisa impression",
+  "description": "Lisa Impression",
   "main": "main.js",
   "build": {
+    "productName": "Lisa Impression",
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
@@ -22,7 +23,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron-forge start",
-    "package": "electron-packager . LisaImpression --icon=./src/images/logo_er2p.ico",
+    "package": "electron-packager . LisaImpression --win32metadata.requested-execution-level=requireAdministrator --icon=./src/images/logo_er2p.ico",
     "make": "electron-forge make",
     "dist": "build"
   },
@@ -69,6 +70,7 @@
     "public-ip": "^4.0.0",
     "python": "^0.0.4",
     "rm-rf": "^2.0.1",
+    "sudo-prompt": "^9.2.1",
     "toastr": "^2.1.4",
     "windows-1252": "^3.0.4",
     "xmlhttprequest": "^1.8.0"
@@ -76,7 +78,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "icon":"./src/images/logo_er2p.ico"
+        "icon": "./src/images/logo_er2p.ico"
       },
       "makers": [
         {

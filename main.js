@@ -16,7 +16,9 @@ var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 //var adresseAPI = "http://apiimpression";
 var adresseAPI = "https://apiimpression.leonardo-service.com";
 
-var printer = remote.printer
+var printer = remote.printer;
+
+
 
 const url = require('url')
 const { Console } = require("console");
@@ -66,7 +68,18 @@ function createWindowIndex() {
 
 
 function createWindowLogin(deconnecte,ip) {
-  data={"chemin" : __dirname, "deconnect" : deconnecte, "ip":ip,"version":app.getVersion()};
+
+  if (process.platform === 'darwin') {
+    chemin=__dirname
+  }else{
+    var dir =app.getPath('documents') + '/LisaImpression';
+    if (!fs.existsSync(dir)){
+      fs.mkdirSync(dir);
+    }
+    chemin=app.getPath('documents')+ "/LisaImpression/";
+  }
+
+  data={"chemin" : chemin, "deconnect" : deconnecte, "ip":ip,"version":app.getVersion()};
 
   mainWindowLogin = new BrowserWindow({
     width: 1200,
